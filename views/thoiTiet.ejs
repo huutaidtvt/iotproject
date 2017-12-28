@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<title>Thời Tiết</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+ <meta charset="UTF-8">
+<% include ./header %>
+<body onload="getLocation()">
+<% include ./side %>
+<div zclass="w3-main" id="main">
+<div class="w3-black">
+  <button class="w3-button w3-black w3-xlarge" id="openSide">&#9776;</button>
+</div>
+<div class="w3-container">
+      <div class="w3-border w3-margin w3-light-grey w3-card-4">
+          <h3 class="w3-myfont mypadding-left" id="location"></h3>
+          <h5 class="w3-myfont mypadding-left" id="time"></h5>
+          <h5 class="w3-myfont mypadding-left" id="description"></h5>
+          <div class="w3-row">
+            <div class="w3-col s6">
+            <h1 class="w3-myfont mypadding-left"><span id="temp"></span><span id="img"></span></h1>
+                <h5  class="w3-myfont mypadding-left" id="sunrise"></h5>
+            </div>
+          <div class="w3-col s6">
+            <h5 class="w3-myfont">Độ Ẩm: <span id="humidity"></span></h5>
+            <h5 class="w3-myfont">Gió: <span id="wind"></span></h5>
+            <h5  class="w3-myfont mypadding-left" id="sunset"></h5>
+          </div>
+          </div>
+      <div id="container" style="height: 250px">
+      </div>
+      <div class="w3-row w3-margin">
+      <div class="w3-col l3 w3-border w3-center w3-margin w3-card-4">
+        <h5 id="day1" class="w3-myfont"></h5>
+        <div id="img1" ></div>
+        <h6 id="description1" class="w3-myfont"></h6>
+        <h6 id="temp1" class="w3-myfont"></h6>
+        <h6 id="humidity1" class="w3-myfont"></h6>
+        <h6 id="wind1" class="w3-myfont"></h6>
+      </div>
+      <div class="w3-col l3 w3-border w3-center w3-margin w3-card-4">
+        <h5 id="day2" class="w3-myfont"></h5>
+        <div id="img2"></div>
+         <h6 id="description2" class="w3-myfont"></h6>
+        <h6 id="temp2" class="w3-myfont"></h6>
+        <h6 id="humidity2" class="w3-myfont"></h6>
+        <h6 id="wind2" class="w3-myfont"></h6>
+
+      </div>      
+      <div class="w3-col l3 w3-border w3-center w3-margin w3-card-4">
+        <h5 id="day3" class="w3-myfont"></h5>
+        <div id="img3"></div>
+         <h6 id="description3" class="w3-myfont"></h6>
+        <h6 id="temp3" class="w3-myfont"></h6>
+        <h6 id="humidity3" class="w3-myfont"></h6>
+        <h6 id="wind3" class="w3-myfont"></h6>
+
+      </div>
+        
+      </div>
+</div>
+
+</div>
+
+<script>
+$("#openSide").click(function(){
+    if(document.getElementById("mySidebar").style.display=='none'){
+      document.getElementById("main").style.marginLeft = "25%";
+      document.getElementById("mySidebar").style.width = "25%";
+      document.getElementById("mySidebar").style.display = "block";
+      document.getElementById("openNav").style.display = 'none';
+    }
+  else{
+      document.getElementById("main").style.marginLeft = "0%";
+      document.getElementById("mySidebar").style.display = "none";
+      document.getElementById("openNav").style.display = "inline-block";
+  }
+
+})
+</script>
+<script>
+    function gettingJSON(lat,lon){
+        $.getJSON("http://api.openweathermap.org/data/2.5/weather?lat="+lat+"&lon="+lon+"&units=metric&lang=vi&APPID=bb24996bcbce7ca1b3a4411f529a66c6",function(json){
+          var temp=(json.main.temp);
+          var city=json.name;
+          $('#img').html('<img src="http://openweathermap.org/img/w/'+json.weather[0].icon+'.png" style="width:50px;height:50px" >' );
+          $('#temp').text(temp+'°C');
+          $('#humidity').text(json.main.humidity+"%");
+          $('#description').text(json.weather[0].description+'( mây: '+json.clouds.all+' % )');
+          $('#wind').text(convertValue(json.wind.speed*3.6)+' km/h');
+          var myday = formatDay(json.dt);
+          $('#time').text(myday);
+          $('#sunrise').text('Mặt trời mọc lúc: '+formatTime(json.sys.sunrise));
+          $('#sunset').text('Mặt trời lặn lúc: '+formatTime(json.sys.sunset));
+        });
+          $.getJSON("http://api.openweathermap.org/data/2.5/forecast?lat="+lat+"&lon="+lon+"&units=metric&lang=vi&APPID=bb24996bcbce7ca1b3a4411f529a66c6",function(json){
+            var p=json.list.filter(function(item){
+               var date = new Date(item.dt*1000);
+               var day = new Date();
+              return date.getDate()==day.getDate();
+            })
+
+              Highcharts.chart('container', {
+                  chart: {
+                      type: 'line'
+                  },
+                  title: {
+                      text: 'Nền Nhiệt Độ Trong Ngày'
+                  },
+                  subtitle: {
+                      text: 'Nguồn:Khí Tượng Thủy Văn TW'
+                  },
+                  xAxis: {
+                      categories: (function(){
+                        var arr=[];
+                        p.forEach(function(value){
+                          arr.push(formatTime(value.dt));
+                        })
+                       return arr;
+                      }())
+                  },
+                  yAxis: {
+                      title: {
+                          text: 'Nhiệt độ (°C)'
+                      }
+                  },
+                  plotOptions: {
+                      line: {
+                          dataLabels: {
+                              enabled: true
+                          },
+                          enableMouseTracking: false
+                      }
+                  },
+                  series: [{
+                      name: $('#location').text(),
+                      data:(function(){
+                        var arr=[];
+                        p.forEach(function(value){
+                          arr.push(value.main.temp);
+                        })
+                       return arr;
+                      }())
+                  }]
+              });
+          var p2=json.list.filter(function(item){
+               var date = new Date(item.dt*1000);
+               var day = new Date();
+              return date.getDate()==day.getDate()+2;
+            })
+          var p3=json.list.filter(function(item){
+               var date = new Date(item.dt*1000);
+               var day = new Date();
+              return date.getDate()==day.getDate()+3;
+            })
+            var p1=json.list.filter(function(item){
+               var date = new Date(item.dt*1000);
+               var day = new Date();
+              return date.getDate()==day.getDate()+1;
+            })
+            displayInf('1',p1);
+            displayInf('2',p2);
+            displayInf('3',p3);
+
+        })
+    }
+  </script>
+
+<script>
+var x = document.getElementById("demo");
+ 
+function getLocation() {
+if (navigator.geolocation) {
+navigator.geolocation.getCurrentPosition(showPosition, showError);
+} else {
+x.innerHTML = "Trình duyệt của bạn không hỗ trợ Geolocation.";
+}
+}
+ 
+function showPosition(position) {
+var lat=position.coords.latitude;
+var lon=position.coords.longitude;
+$.getJSON("http://maps.googleapis.com/maps/api/geocode/json?latlng="+lat+","+lon+"&sensor=true",function(json){
+  var name=json.results[1].formatted_address;
+  $('#location').text(name);
+})
+gettingJSON(lat,lon);
+}
+
+function showError(error) {
+switch(error.code) {
+case error.PERMISSION_DENIED:
+x.innerHTML = "Người dùng từ chối cấp quyền định vị."
+break;
+case error.POSITION_UNAVAILABLE:
+x.innerHTML = "Không có thông tin vị trí."
+break;
+case error.TIMEOUT:
+x.innerHTML = "Hết thời gian gửi yêu cầu định vị."
+break;
+case error.UNKNOWN_ERROR:
+x.innerHTML = "Lỗi chưa xác định."
+break;
+}
+}
+
+function formatTime(timestamp) {
+    var date = new Date(timestamp*1000);
+    var day = date.getDate();
+    var hour=date.getHours();
+    var min=date.getMinutes();
+    if(min=='0') min='00';
+    var sec=date.getSeconds();
+    if(sec=='0') sec='00';
+    return hour+":"+min+":"+sec;
+}
+function formatDay(timestamp) {
+    var date = new Date(timestamp*1000);
+    var month = date.getMonth()+1;
+    var year = date.getFullYear();
+    var day = date.getDate();
+    var hour=date.getHours();
+    var min=date.getMinutes();
+    if(min=='0') min='00';
+    var sec=date.getSeconds();
+    return hour+":"+min+" ngày "+ day+'/'+month+'/'+year;
+}
+
+function convertValue(value){
+var wind=parseFloat(value).toFixed(1);
+return wind;
+}
+
+function displayInf(id,obj){
+   $('#img'+id).html('<img src="http://openweathermap.org/img/w/'+obj[3].weather[0].icon+'.png" style="width:50px;height:50px" >');
+  $('#temp'+id).text('Nhiệt độ: '+Math.round(obj[3].main.temp)+'°C');
+  $('#description'+id).text(obj[3].weather[0].description);
+ $('#humidity'+id).text('Độ ẩm: '+obj[3].main.humidity+'%');
+$('#wind'+id).text('Gió: '+convertValue(obj[3].wind.speed*3.6)+'km/h');
+$('#day'+id).text(formatDay(obj[3].dt));  
+}
+
+</script>
+</body>
+</html>

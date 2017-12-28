@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<title>Cài Đặt</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+ <meta charset="UTF-8">
+<% include ./header %>
+<body>
+<% include ./side %>
+<div zclass="w3-main" id="main">
+  <div class="w3-black">
+    <button class="w3-button w3-black w3-xlarge" id="openSide">&#9776;</button>
+  </div>
+  <div class="w3-container w3-center">
+  <div class="w3-border w3-margin w3-light-grey w3-card-4">
+   <div class="w3-row ">
+      <div class="w3-col l3 w3-light-grey w3-container w3-margin w3-card-4 w3-round">
+          <h3 class="w3-myfont mypadding-left">Độ mặn:%</h3>
+            <p>
+            <label>Ngưỡng Trên</label>
+            <input class="w3-input w3-border w3-round" type="number" id="salinityOver"></p>
+            <p>
+            <label>Ngưỡng Dưới</label>
+            <input class="w3-input w3-border w3-round" type="number" id="salinityUnder"></p>
+            
+      </div>
+      <div class="w3-col l3 w3-light-grey w3-container w3-margin w3-card-4 w3-round">
+          <h3 class="w3-myfont mypadding-left">Độ Ph: </h3>
+            <p>
+            <label>Ngưỡng Trên</label>
+            <input class="w3-input w3-border w3-round" type="number" id="phOver"></p>
+            <p>
+            <label>Ngưỡng Dưới</label>
+            <input class="w3-input w3-border w3-round" type="number" id="phUnder"></p>
+            
+      </div>
+      <div class="w3-col l3 w3-light-grey w3-container w3-margin w3-card-4 w3-round">
+          <h3 class="w3-myfont mypadding-left">CoD: mg/L</h3>
+            <p>
+            <label>Ngưỡng Trên</label>
+            <input class="w3-input w3-border w3-round" type="number" id="codOver"></p>
+            <p>
+            <label>Ngưỡng Dưới</label>
+            <input class="w3-input w3-border w3-round" type="number" id="codUnder"></p>
+            
+      </div>
+      <div class="w3-col l3 w3-light-grey w3-container w3-margin w3-card-4 w3-round">
+          <h3 class="w3-myfont mypadding-left">BoD: %</h3>
+            <p>
+            <label>Ngưỡng Trên</label>
+            <input class="w3-input w3-border w3-round" type="number" id="bodOver"></p>
+            <p>
+            <label>Ngưỡng Dưới</label>
+            <input class="w3-input w3-border w3-round" type="number" id="bodUnder"></p>
+            
+      </div>
+      <div class="w3-col l3 w3-light-grey w3-container w3-margin w3-card-4 w3-round">
+          <h3 class="w3-myfont mypadding-left">Nhiệt Độ: °C</h3>
+            <p>
+            <label>Ngưỡng Trên</label>
+            <input class="w3-input w3-border w3-round" type="number" id="tempOver"></p>
+            <p>
+            <label>Ngưỡng Dưới</label>
+            <input class="w3-input w3-border w3-round" type="number" id="tempUnder"></p>
+            
+      </div>
+      <div class="w3-col l3 w3-light-grey w3-container w3-margin w3-card-4 w3-round">
+          <h3 class="w3-myfont mypadding-left">Độ mặn: %</h3>
+            <p>
+            <label>Ngưỡng Trên</label>
+            <input class="w3-input w3-border w3-round" type="number"></p>
+            <p>
+            <label>Ngưỡng Dưới</label>
+            <input class="w3-input w3-border w3-round" type="number"></p>
+            
+        </div>
+        </div>
+        <div>
+          <h5 id="alert"></h5>
+          <button onclick="save()" class="w3-button w3-white w3-border w3-border-red w3-round-large">Lưu cài đặt</button>
+        </div>
+      </div>
+    </div>
+</div>
+<script type="text/javascript">
+var socket=io();
+socket.emit('dataSetting');
+socket.on('dataSetting',function(data){
+$('#salinityOver').val(data[1].tren);
+$('#salinityUnder').val(data[1].duoi);
+$('#tempOver').val(data[0].tren);
+$('#tempUnder').val(data[0].duoi);
+$('#phOver').val(data[2].tren);
+$('#phUnder').val(data[2].duoi);
+$('#codOver').val(data[3].tren);
+$('#codUnder').val(data[3].duoi);
+$('#bodOver').val(data[4].tren);
+$('#bodUnder').val(data[4].duoi);
+});
+ socket.on('saveSetting',function(data){
+  if(data=='faile'){
+    $('#alert').show("slow",function(){
+    $(this).html("<h5 class='w3-text-red'><b>Lưu thất bại</b></h5>");
+    $(this).hide(4000);
+    });
+  }
+  if(data=='ok'){
+    $('#alert').show("slow",function(){
+    $(this).html("<h5 class='w3-text-green'><b>Lưu thành công</b></h5>");
+    $(this).hide(4000);
+    });
+  }
+ })    
+function save(){
+var salinityOver=$('#salinityOver').val();
+var salinityUnder=$('#salinityUnder').val();
+var tempOver=$('#tempOver').val();
+var tempUnder=$('#tempUnder').val();
+var codOver=$('#codOver').val();
+var codUnder=$('#codUnder').val();
+var bodOver=$('#bodOver').val();
+var bodUnder=$('#bodUnder').val();
+var phOver=$('#phOver').val();
+var phUnder=$('#phUnder').val();
+if(salinityOver && salinityUnder && tempOver &&tempUnder &&codOver &&codUnder &&bodUnder&&bodOver &&phUnder &&phOver){
+var obj={ 'salinityOver':salinityOver,
+          'salinityUnder':salinityUnder,
+          'tempOver':tempOver,
+          'tempUnder':tempUnder,
+          'codOver':codOver,
+          'codUnder':codUnder,
+          'bodOver':bodOver,
+          'bodUnder':bodUnder,
+          'phOver':phOver,
+          'phUnder':phUnder
+        }
+ socket.emit('saveSetting',obj);   
+}
+else{
+    $('#alert').show("slow",function(){
+     $(this).html("<h5 class='w3-text-red'><b>Chưa nhập đủ thông tin</b></h5>");
+    $(this).hide(4000);
+    });
+}
+}
+</script>
+
+
+<script>
+$("#openSide").click(function(){
+    if(document.getElementById("mySidebar").style.display=='none'){
+      document.getElementById("main").style.marginLeft = "25%";
+      document.getElementById("mySidebar").style.width = "25%";
+      document.getElementById("mySidebar").style.display = "block";
+      document.getElementById("openNav").style.display = 'none';
+    }
+  else{
+      document.getElementById("main").style.marginLeft = "0%";
+      document.getElementById("mySidebar").style.display = "none";
+      document.getElementById("openNav").style.display = "inline-block";
+  }
+
+})
+</script>
+
+
+</body>
+</html>

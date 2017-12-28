@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<title>Điều Khiển</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+ <meta charset="UTF-8">
+<% include ./header %>
+<body>
+<% include ./side %>
+<div zclass="w3-main" id="main">
+<div class="w3-black">
+  <button class="w3-button w3-black w3-xlarge" id="openSide">&#9776;</button>
+</div>
+<div class="w3-container">
+    <div class="w3-row w3-margin" >   
+      <div class="w3-col l3 w3-red w3-margin-right mycard w3-card-4 w3-round">
+         <label class="checkbox">
+        <input type="checkbox" class="checkbox__input" />
+        <div class="checkbox__switch"></div>
+          </label> 
+      <hr>
+      </div>
+      <div class="w3-col l3 w3-red w3-margin-right mycard w3-card-4 w3-round">
+        <div class="w3-left">
+          <h3 class="w3-myfont mypadding-left">Độ mặn</h3>
+          <h5 class="w3-myfont mypadding-left">10%</h5>
+        </div>
+        <div class="w3-right w3-margin">
+          <i class="fa fa-area-chart" style="font-size:42px"></i>
+        </div>
+      </div>
+      <div class="w3-col l3 w3-red w3-margin-right mycard w3-card-4 w3-round">
+        <div class="w3-left">
+          <h3 class="w3-myfont mypadding-left">Độ mặn</h3>
+          <h5 class="w3-myfont mypadding-left">10%</h5>
+        </div>
+        <div class="w3-right w3-margin">
+          <i class="fa fa-area-chart" style="font-size:42px"></i>
+        </div>
+      </div>
+    </div>
+</div>
+</div>
+
+<script>
+$("#openSide").click(function(){
+    if(document.getElementById("mySidebar").style.display=='none'){
+      document.getElementById("main").style.marginLeft = "25%";
+      document.getElementById("mySidebar").style.width = "25%";
+      document.getElementById("mySidebar").style.display = "block";
+      document.getElementById("openNav").style.display = 'none';
+    }
+  else{
+      document.getElementById("main").style.marginLeft = "0%";
+      document.getElementById("mySidebar").style.display = "none";
+      document.getElementById("openNav").style.display = "inline-block";
+  }
+})
+</script>
+
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<title>Camera</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+ <meta charset="UTF-8">
+<% include ./header %>
+<body>
+<% include ./side %>
+<div zclass="w3-main" id="main">
+
+<div class="w3-black">
+  <button class="w3-button w3-black w3-xlarge" id="openSide">&#9776;</button>
+</div>
+
+<div class="w3-container">
+<div class="w3-row w3-padding">
+  <div class="w3-col l10">
+    <div class="w3-row ">
+      <div class="w3-col l5 w3-red w3-margin-right mycard w3-card-4 w3-round">
+        <div class="w3-left">
+          <h3 class="w3-myfont mypadding-left">Độ mặn: <span id="salinity"></span>%</h3>
+          <h5 class="w3-myfont mypadding-left">Ngưỡng: <span>20% ~ 50%</span></h5>
+        </div>
+        <div class="w3-right w3-margin">
+          <i class="fa fa-area-chart" style="font-size:42px"></i>
+        </div>
+      </div>
+      <div class="w3-col l5 w3-cyan w3-myfont w3-card-4 mycard w3-round">
+        <div class="w3-left">
+          <h3 class="w3-myfont mypadding-left">Ph: <span id="ph"></span>%</h3>
+          <h5 class="w3-myfont mypadding-left">Ngưỡng: <span>20% ~ 50%</span></h5>
+        </div>
+        <div class="w3-right w3-margin">
+          <i class="fa fa-area-chart" style="font-size:42px"></i>
+        </div>
+      </div>
+      <div class="w3-col l5 w3-green  w3-margin-right w3-myfont w3-margin-top w3-card-4 mycard w3-round">
+        <div class="w3-left">
+          <h3 class="w3-myfont mypadding-left">Bod: <span id="bod"></span>%</h3>
+          <h5 class="w3-myfont mypadding-left">Ngưỡng: <span>20% ~ 50%</span></h5>
+        </div>
+        <div class="w3-right w3-margin">
+          <i class="fa fa-area-chart" style="font-size:42px"></i>
+        </div>
+      </div>
+      <div class="w3-col l5 w3-blue  w3-myfont w3-margin-top w3-card-4 mycard w3-round">
+        <div class="w3-left">
+          <h3 class="w3-myfont mypadding-left">Cod: <span id="cod"></span>%</h3>
+          <h5 class="w3-myfont mypadding-left">Ngưỡng: <span>20% ~ 50%</span></h5>
+        </div>
+        <div class="w3-right w3-margin">
+          <i class="fa fa-area-chart" style="font-size:42px"></i>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="w3-col l2 w3-yellow w3-myfont w3-center w3-card-4 mycard w3-round " style="height:202px;">
+  <div class="w3-margin-top">
+    <i class="fa fa-thermometer-4" style="font-size:42px"></i>
+  </div>
+  <div>
+    <h3 class="w3-myfont">Nhiệt độ</h3>
+    <h5 class="w3-myfont" ><span id="temp"></span>°C</h5>
+    <h5 class="w3-myfont">20°C ~ 70°C</h5>
+  </div>
+  </div>
+</div>
+  <div class="w3-card-4 w3-margin" style="height: 300px;" id="container">
+    
+  </div>
+
+</div>
+
+</div>
+<script type="text/javascript">
+var socket=io();
+socket.on("giam_sat",function(data){
+  //result= JSON.parse(data);
+  //console.log(data[0].nhiet_do);
+$('#temp').text(data[0].nhiet_do);
+$('#ph').text(data[0].ph);
+$('#salinity').text(data[0].do_man);
+$('#cod').text(data[0].cod);
+$('#bod').text(data[0].bod);
+ alert(data[0].nhiet_do,'70','20');
+})
+
+</script>
+
+
+<script>
+$("#openSide").click(function(){
+    if(document.getElementById("mySidebar").style.display=='none'){
+      document.getElementById("main").style.marginLeft = "25%";
+      document.getElementById("mySidebar").style.width = "25%";
+      document.getElementById("mySidebar").style.display = "block";
+      document.getElementById("openNav").style.display = 'none';
+    }
+  else{
+      document.getElementById("main").style.marginLeft = "0%";
+      document.getElementById("mySidebar").style.display = "none";
+      document.getElementById("openNav").style.display = "inline-block";
+  }
+
+})
+</script>
+
+<script type="text/javascript">
+
+dothi('Nhiệt Độ');
+var t;
+function dothi(e){
+    clearInterval(t);     
+    $(document).ready(function () {
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            }
+        });
+$('#container').highcharts({
+        chart: {
+            type: 'spline',
+            animation: Highcharts.svg, // don't animate in old IE
+            marginRight: 10,
+            events: {
+                load: function () {
+
+                    // set up the updating of the chart each second
+                    var series = this.series[0];
+                    setInterval(function () {
+                        socket.emit("giam_sat");
+                        var x = (new Date()).getTime(), // current time
+                            y = $('#temp').text()*1;
+                        series.addPoint([x, y], true, true);
+                    }, 1000);
+                }
+            }
+        },
+        title: {
+            text: 'Live random data'
+        },
+        xAxis: {
+            type: 'datetime',
+            tickPixelInterval: 150
+        },
+        yAxis: {
+            title: {
+                text: 'Value'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        tooltip: {
+            formatter: function () {
+                return '<b>' + this.series.name + '</b><br/>' +
+                    Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+                    Highcharts.numberFormat(this.y, 2);
+            }
+        },
+        legend: {
+            enabled: false
+        },
+        exporting: {
+            enabled: false
+        },
+        series: [{
+            name: 'Random data',
+            data: (function () {
+                // generate an array of random data
+                socket.emit("giam_sat");
+                 var data = [],
+                    time = (new Date()).getTime(),
+                    i;
+
+                for (i = -19; i <= 0; i += 1) {
+                    data.push({
+                        x: time + i * 1000,
+                        y:$('#temp').text()*1
+                    });
+                }
+                 return data;
+            }())
+        }]
+    });
+});
+}
+
+function alert(value,up,down){
+if(value>=up || value<down){
+setTimeout(function(){
+    $('body').css('background','red');
+        }, 500);
+    $('body').css('background','white');  
+} 
+else{
+ $('body').css('background','white');  
+}
+
+}
+</script>
+</body>
+</html>

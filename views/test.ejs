@@ -1,0 +1,91 @@
+ <!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<body>
+ 
+<p>Nhấn vào nút dưới đây để lấy tọa độ của bạn.</p>
+ 
+<button onclick="getLocation()">Định vị</button>
+ 
+<p id="demo"></p>
+<div>nhiệt độ :<span id="temp"></span>*C</div>
+<div id="img"></div>
+<div id="name"></div>
+<div id="humi"></div>
+ 
+<script>
+    function gettingJSON(lat,lon){
+        $.getJSON("http://api.openweathermap.org/data/2.5/weather?lat="+lat+"&lon="+lon+"&units=metric&APPID=bb24996bcbce7ca1b3a4411f529a66c6",function(json){
+          console.log(json);
+          var temp=(json.main.temp);
+          var city=json.name;
+          console.log(city);
+          //$('#name').text(city);
+          console.log(temp);
+          console.log(json.weather[0].icon);
+          $('#img').html('<img src="http://openweathermap.org/img/w/'+json.weather[0].icon+'.png">');
+          $('#temp').text(temp);
+          $('#humi').text(json.main.humidity+"%");
+          var d = new Date();
+          //console.log(d.setTime(1504166400));
+          var myday = formatDay(json.dt);
+          console.log(myday );
+        });
+          $.getJSON("http://api.openweathermap.org/data/2.5/forecast?lat="+lat+"&lon="+lon+"&units=metric&lang=vi&APPID=bb24996bcbce7ca1b3a4411f529a66c6",function(json){
+          console.log(json);})
+    }
+  </script>
+
+<script>
+var x = document.getElementById("demo");
+ 
+function getLocation() {
+if (navigator.geolocation) {
+navigator.geolocation.getCurrentPosition(showPosition, showError);
+} else {
+x.innerHTML = "Trình duyệt của bạn không hỗ trợ Geolocation.";
+}
+}
+ 
+function showPosition(position) {
+var lat=position.coords.latitude;
+var lon=position.coords.longitude;
+//console.log(lat+','+lon);
+$.getJSON("http://maps.googleapis.com/maps/api/geocode/json?latlng="+lat+","+lon+"&sensor=true",function(json){
+  //console.log(json);
+  var name=json.results[1].formatted_address;
+  $('#name').text(name);
+})
+gettingJSON(lat,lon);
+}
+ 
+function showError(error) {
+switch(error.code) {
+case error.PERMISSION_DENIED:
+x.innerHTML = "Người dùng từ chối cấp quyền định vị."
+break;
+case error.POSITION_UNAVAILABLE:
+x.innerHTML = "Không có thông tin vị trí."
+break;
+case error.TIMEOUT:
+x.innerHTML = "Hết thời gian gửi yêu cầu định vị."
+break;
+case error.UNKNOWN_ERROR:
+x.innerHTML = "Lỗi chưa xác định."
+break;
+}
+}
+function formatDay(timestamp) {
+    var date = new Date(timestamp*1000);
+    var month = date.getMonth()+1;
+    var year = date.getFullYear();
+    var day = date.getDate();
+    var hour=date.getHours();
+    var min=date.getMinutes();
+    var sec=date.getSeconds();
+    return hour+":"+min+":"+sec+"  "+year+'/'+month+'/'+day;
+}
+</script>
+ 
+</body>
+</html>

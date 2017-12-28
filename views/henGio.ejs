@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<title>Đặt Giờ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+ <meta charset="UTF-8">
+<% include ./header %>
+<body onload="startTime()">
+<% include ./side %>
+
+<div zclass="w3-main" id="main">
+<div class="w3-black">
+  <div class="w3-row">
+  <div class="w3-col l5"><button class="w3-button w3-black w3-xlarge" id="openSide">&#9776;</button></div>
+  <div class="w3-col l7 w3-xlarge" id="timer"></div>
+  </div>
+</div>
+<div class="w3-container w3-margin-top">
+<!--       <div class="w3-red w3-card-4 w3-round">
+        <div class="w3-left">
+          <h3 class="w3-myfont mypadding-left">Cho ăn</h3>
+          <h5 class="w3-myfont mypadding-left"></h5>
+        </div>
+        <div class="w3-right w3-margin">
+           Nhập số lần cho ăn <input type="number" name="">
+        </div>
+      </div> -->
+      <div class="w3-light-grey w3-card-4 w3-round mycard" style="height:200px">
+        <div class="w3-row w3-margin-top">
+          <div class="w3-col l6">
+              <h3 class="w3-myfont ">Cho ăn</h3>
+              <h5 class="w3-myfont "></h5>
+          </div>
+          <div class="w3-col l6">
+           Nhập số lần cho ăn <input type="number" name="" onchange="time(this)">
+          </div>
+        </div>
+        <div class="w3-row w3-center" id="henGioAn">
+          <div class="w3-col l3">Lần cho ăn</div>
+          <div class="w3-col l3">Thời gian bắt đầu</div>
+          <div class="w3-col l3">Thời gian kết thúc</div>
+          <div class="w3-col l3">Khoảng thời gian</div>
+        </div>
+      </div>
+      <div class="w3-light-grey w3-card-4 w3-round mycard w3-margin-top" style="height: 100px">
+        <div class="w3-left">
+          <h3 class="w3-myfont mypadding-left">Cho ăn</h3>
+          <h5 class="w3-myfont mypadding-left"></h5>
+        </div>
+        <div class="w3-right w3-margin">
+           Nhập số lần cho ăn <input type="number" name="">
+        </div>
+      </div>
+      <div class="w3-light-grey w3-card-4 w3-round mycard w3-margin-top" style="height: 100px">
+        <div class="w3-left">
+          <h3 class="w3-myfont mypadding-left">Cho ăn</h3>
+          <h5 class="w3-myfont mypadding-left"></h5>
+        </div>
+        <div class="w3-right w3-margin">
+           Nhập số lần cho ăn <input type="number" name="">
+        </div>
+      </div>
+</div>
+</div>
+<script>
+$("#openSide").click(function(){
+    if(document.getElementById("mySidebar").style.display=='none'){
+      document.getElementById("main").style.marginLeft = "25%";
+      document.getElementById("mySidebar").style.width = "25%";
+      document.getElementById("mySidebar").style.display = "block";
+      document.getElementById("openNav").style.display = 'none';
+    }
+  else{
+      document.getElementById("main").style.marginLeft = "0%";
+      document.getElementById("mySidebar").style.display = "none";
+      document.getElementById("openNav").style.display = "inline-block";
+  }
+
+})
+</script>
+<script>
+function checkTime(i) 
+{
+    if (i < 10) {
+        i = "0" + i;
+    }
+    return i;
+}
+//...............................
+function startTime() 
+{
+    var today = new Date();
+    var h = today.getHours();
+    var m = today.getMinutes();
+    var s = today.getSeconds();
+    var y=today.getFullYear();
+    var mm=today.getMonth()+1;
+    var d=today.getDate();
+    m = checkTime(m);
+    s = checkTime(s);
+    document.getElementById('timer').innerHTML = h + ":" + m + ":" + s +'    Ngày '+d+'-'+mm+'-'+y ;
+    var t = setTimeout(function() {
+        startTime();
+    }, 500);
+}
+//...............................
+function time(e){
+var count=$(e).val();
+for (var i = 0; i < count; i++) {
+  $('#henGioAn').append('<div class="w3-col l3">12</div><div class="w3-col l3"><input type="text" class="timepicki"></div><div class="w3-col l3"><input type="text" class="timepicki"></div><div class="w3-col l3">30 phút</div>');
+  }
+  $('.timepicki').timepicki({show_meridian:false});
+}
+</script>
+</body>
+</html>
