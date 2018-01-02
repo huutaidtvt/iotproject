@@ -3,7 +3,7 @@ var con = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "",
-  database: "admin_mqtt"
+  database: "mqtt"
 });
 module.exports={
 'insert':function(table,data){
@@ -17,7 +17,7 @@ module.exports={
 				}
 				field_list=field_list.substring(1);
 				field_value=field_value.substring(1);
-				sql='INSERT INTO '+table+'('+field_list+') VALUES (' +field_value+')' ;
+				sql='INSERT INTO '+table+'('+field_list+') VALUES ("' +field_value+'")' ;
 				con.query(sql, function (err, result) {
 				 if (err) throw err;
 					    console.log("1 record inserted, ID: " + result.insertId);
@@ -30,12 +30,13 @@ module.exports={
 		var obj=data;
 		var sql='';
 		for(var key in obj){
-			sql+=key+'='+obj[key]+',';
+			sql+=key+'="'+obj[key]+'",';
 		}
 		sql=sql.substring(0,sql.length-1);
 		sql='UPDATE '+table+ ' SET '+sql+' WHERE ' +where ;
+		console.log(sql);
 		con.query(sql, function (err, result) {
-		 if (err) throw err;
+		 if (err) console.log(err);
 			    console.log(result.affectedRows + " record(s) updated");
 			  });
 		});

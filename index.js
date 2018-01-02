@@ -35,18 +35,27 @@ io.on("connection",function(socket){
 	})
 
 //..............................................
-socket.on('dataSetting',function(){
-	database.select("select * from nguong",function(data){
-		socket.emit('dataSetting',data);
+socket.on('dataAoClient',function(){
+	database.select("select MaAo,TenAo,PhanLoai,QuanLy,TrangThaiAo,DATE_FORMAT(ThoiGianNuoi,'%e/%m/%Y') AS Ngay,DATEDIFF(now(),ThoiGianNuoi) AS SoNgayNuoi from tblqlao",function(data){
+		console.log(data);
+		socket.emit('dataAoServer',data);
 	})	
 })
-socket.on("saveSetting",function(data){
-		database.update('nguong',{tren:data.tempOver,duoi:data.tempUnder},'id=1');
-		database.update('nguong',{tren:data.salinityOver,duoi:data.salinityUnder},'id=2');
-	    database.update('nguong',{tren:data.phOver,duoi:data.phUnder},'id=3');
-		database.update('nguong',{tren:data.codOver,duoi:data.codUnder},'id=4');
-		database.update('nguong',{tren:data.bodOver,duoi:data.bodUnder},'id=5');
-		socket.emit("saveSetting",'ok');
+socket.on("addAo",function(data){
+database.insert('tblqlao',{TenAo:data.TenAo,PhanLoai:data.PhanLoai,QuanLy:data.QuanLy,TrangThaiAo:data.TrangThaiAo})
+})
+//...............................................
+socket.on("updateAo",function(data){
+	console.log(data);
+database.update('tblqlao',{TenAo:data.TenAo,PhanLoai:data.PhanLoai,QuanLy:data.QuanLy,TrangThaiAo:data.TrangThaiAo},"MaAo="+data.MaAo)
+})
+socket.on("deleteAo",function(data){
+database.delete("tblqlao","MaAo="+data)	
+})
+socket.on("getListSensor",function(data){
+database.select('select *,DATE_FORMAT(ThoiGian,"%k:%i %e/%m/%Y") AS Ngay from tblthietbi where MaAo='+data,function(result){
+	socket.emit("getListSensor",result);
+})	
 })
 //...............................................
 	socket.on("fan",function(data){
@@ -79,21 +88,6 @@ socket.on("saveSetting",function(data){
 
 })
 
-client.on('connect', function () {
-  client.subscribe('giam_sat');
-})
-
-client.on('message', function (topic, message) {
-  // message is Buffer 
-  //console.log(message.toString());
-json = JSON.parse(message.toString());
- console.log(topic);
- if(topic=='giam_sat'){
-// io.sockets.emit("giam_sat",message.toString());
-//insertGiamSat(json);
-	}
-
-})
 
 
 app.get("/hengio",function(req,res) {
@@ -130,7 +124,9 @@ app.get("/test",function(req,res) {
 app.get("/thoitiet",function(req,res) {
 	res.render("thoiTiet");
 })
-
+app.get("/quanlyao",function(req,res){
+	res.render("quanLyAo");
+})
 serialport.on('open', function(){
   console.log('Serial Port Opend');
   serialport.on('data', function(data){
@@ -139,11 +135,3 @@ serialport.on('open', function(){
   serialport.write("12tooial");
 });
 
-function insertGiamSat(json){
-var temp=json.temp;
-var cod=json.cod;
-var bod=json.bod;
-var salinity=json.salinity;
-var ph=json.ph;
-database.insert('giam_sat',{nhiet_do:temp,cod:cod,bod:bod,ph:ph,do_man:salinity});
-}

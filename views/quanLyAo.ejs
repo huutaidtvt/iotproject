@@ -12,19 +12,96 @@
   <button class="w3-button w3-black w3-xlarge" id="openSide">&#9776;</button>
 </div>
 
+<div class="w3-margin">
+  <button onclick="document.getElementById('add').style.display='block'">Thêm Ao</button>
+  <button onclick="updatePopup()">Sửa Thông Tin</button>
+  <button onclick="deletePopup()">Xóa Ao</button>
+</div>
 <div class="w3-container">
-    <div class="w3-row ">
-      <div class="w3-col l5 ">
-        <div class="w3-left">
-          <h3 class="w3-myfont mypadding-left">Độ mặn: <span id="salinity"></span>%</h3>
-          <h5 class="w3-myfont mypadding-left">Ngưỡng: <span id="salinityUnder"></span>% ~ <span id="salinityOver"></span>%</h5>
-        </div>
-        <div class="w3-right w3-margin">
-          <i class="fa fa-area-chart" style="font-size:42px"></i>
-        </div>
-      </div>    
+    <div class="w3-row " id="content">   
     </div>
 </div>
+
+  <div id="add" class="w3-modal w3-animate-opacity">
+    <div class="w3-modal-content w3-card-4">
+      <header class="w3-container w3-black"> 
+        <span onclick="document.getElementById('add').style.display='none'" 
+        class="w3-button w3-large w3-display-topright">&times;</span>
+        <h2>Thêm Ao</h2>
+      </header>
+      <div class="w3-container">
+        <label>Tên Ao</label>
+        <input class="w3-input w3-border" type="text" id="addName">
+        <label>Người Quản Lý</label>
+        <input class="w3-input w3-border" type="text" id="addManage">
+        <label>Nuôi</label>
+        <select id="addCategory" class="w3-select w3-border">
+          <option>Cá</option>
+          <option>Tôm</option>
+        </select>
+        <label>Tình Trạng</label>
+        <select id="addStatus" class="w3-select w3-border">
+          <option value="1">Khỏe Mạnh</option>
+          <option value="2">Bị Bệnh</option>
+          <option value="3">Đã Thu Hoạch</option>
+        </select>
+        <button onclick="add()">Thêm Ao</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="update" class="w3-modal w3-animate-opacity">
+    <div class="w3-modal-content w3-card-4">
+      <header class="w3-container w3-black"> 
+        <span onclick="document.getElementById('update').style.display='none'" 
+        class="w3-button w3-large w3-display-topright">&times;</span>
+        <h2>Thay  Ao</h2>
+      </header>
+      <div class="w3-container">
+        <label>Tên Ao</label>
+        <input class="w3-input w3-border" type="text" id="updateName">
+        <label>Người Quản Lý</label>
+        <input class="w3-input w3-border" type="text" id="updateManage">
+        <label>Nuôi</label>
+        <select id="updateCategory" class="w3-select w3-border">
+          <option value="Cá">Cá</option>
+          <option value="Tôm">Tôm</option>
+        </select>
+        <label>Tình Trạng</label>
+        <select id="updateStatus" class="w3-select w3-border">
+          <option value="1">Khỏe Mạnh</option>
+          <option value="2">Bị Bệnh</option>
+          <option value="3">Đã Thu Hoạch</option>
+        </select>
+        <button onclick="update()">Cập Nhật</button>
+      </div>
+    </div>
+  </div>
+
+    <div id="delete" class="w3-modal w3-animate-opacity">
+    <div class="w3-modal-content w3-card-4">
+      <header class="w3-container w3-black"> 
+        <span onclick="document.getElementById('delete').style.display='none'" 
+        class="w3-button w3-large w3-display-topright">&times;</span>
+        <h2>Xóa Ao</h2>
+      </header>
+      <div class="w3-container">
+        <label>Tên Ao</label>
+        <input class="w3-input" type="text" id="deleteName" readonly="readonly">
+        <label>Người Quản Lý</label>
+        <input class="w3-input" type="text" id="deleteManage" readonly="readonly">
+        <label>Nuôi</label>
+        <input type="text" class="w3-input" id="deleteCategory" readonly="readonly">
+        <label>Tình Trạng</label>
+        <input type="text" class="w3-input" id="deleteStatus" readonly="readonly" >
+        <button onclick="deleteSelect()" >Loại Bỏ</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
 
 </div>
 
@@ -32,7 +109,99 @@
 <script type="text/javascript">
 
 var socket=io();
-socket.emit("dataSetting");
+socket.emit("dataAoClient");
+socket.on("dataAoServer",function(data){
+socket.data=data;
+$('#content').html('');
+  $(data).each(function(key,value){
+    $('#content').append('<div class="w3-col l2"  id='+value.MaAo+'  onclick=selectElement(this.id) ondblclick="listSensor()">'+
+        '<div class="w3-margin w3-border w3-round-large w3-center" style="background:'+backgroundColor(value.TrangThaiAo)+'">'+
+          '<h2 id="ten" class="w3-center">'+value.TenAo+'</h2>'+
+          '<img src="'+icon(value.PhanLoai)+'" width="50px" height="50px">'+
+          '<p>Ngày nuôi:'+value.Ngay+'<br>Số ngày Nuôi:'+value.SoNgayNuoi+'(Ngày)</p>'+
+        '</div>'+
+      '</div> ')
+  })
+})
+
+var objFilter={};
+function selectElement(e){
+objFilter=socket.data.filter(function(val){return val.MaAo==e });
+$('#'+e).css('background-color','#87CEFA');
+$(socket.data).each(function(key,value){
+  if(value.MaAo!=e) $('#'+value.MaAo).css('background-color','white');
+})
+}
+
+function icon(category){
+  if(category=="Cá") return "img/fish.ico";
+  if(category=="Tôm") return "img/tom.png"
+}
+function backgroundColor(status){
+  if(status=='1') return "green";
+  if(status=='2') return "red";
+  if(status=='3') return "yellow";
+}
+
+function add(){
+var obj={
+  TenAo:$('#addName').val(),
+  PhanLoai:$('#addCategory').val(),
+  TrangThaiAo:$('#addStatus').val(),
+  QuanLy:$('#addManage').val()
+}
+socket.emit('addAo',obj);
+socket.emit('dataAoClient');
+
+}
+function updatePopup(){
+document.getElementById('update').style.display='block';
+$('#updateName').val(objFilter[0].TenAo);
+$('#updateCategory').val(objFilter[0].PhanLoai);
+$('#updateStatus').val(objFilter[0].TrangThaiAo);
+$('#updateManage').val(objFilter[0].QuanLy);
+}
+function update(){
+var obj={
+  MaAo:objFilter[0].MaAo,
+  TenAo:$('#updateName').val(),
+  PhanLoai:$('#updateCategory').val(),
+  TrangThaiAo:$('#updateStatus').val(),
+  QuanLy:$('#updateManage').val()
+}
+socket.emit('updateAo',obj);
+socket.emit('dataAoClient');
+}
+function deletePopup(){
+document.getElementById('delete').style.display='block';
+$('#deleteName').val(objFilter[0].TenAo);
+$('#deleteCategory').val(objFilter[0].PhanLoai);
+$('#deleteStatus').val(objFilter[0].TrangThaiAo);
+$('#deleteManage').val(objFilter[0].QuanLy);
+}
+function deleteSelect(){
+var a=confirm("Bạn thực sự muốn bỏ "+objFilter[0].TenAo);
+if(a){
+  socket.emit("deleteAo",objFilter[0].MaAo);
+  socket.emit('dataAoClient');
+  document.getElementById('delete').style.display='none';
+}
+}
+function listSensor(){
+ socket.emit("getListSensor",objFilter[0].MaAo); 
+}
+socket.on("getListSensor",function(data){
+  var table='';
+  table+='<table class="w3-table-all w3-centered">'
+  table+='<tr><th>STT</th><th>Tên Thiết Bị</th><th>Loại Thiết Bị</th><th>Ngưỡng</th><th>Đơn Vị Đo</th><th><th>Kết Nối</th>Thời gian</th><th>Edit</th></tr>'
+  var count=1;
+$(data).each(function(key,value){
+  table+='<tr><td>'+count++ +'</td><td>'+value.TenThietBi+'</td><td>'+value.LoaiThietBi+'</td><td>'+value.NguongDuoi+' ~ '+value.NguongTren+'</td><td>'+value.DonViDo+'</td><td>'+value.KetNoi+'</td><td>'+value.Ngay+'</td><td><button>Sửa</button><button>Xóa</button></td></tr>';
+
+})
+table+='</table>';
+$('#content').html(table);
+})
 </script>
 <script>
 $("#openSide").click(function(){
